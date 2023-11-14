@@ -92,6 +92,10 @@ export type BlockNoteEditorOptions<BSchema extends BlockSchema> = {
    */
   editable: boolean;
   /**
+   * Disables block nesting by the user if set to `false`.
+   */
+  enableNestedBlocks: boolean;
+  /**
    * The content that should be in the editor when it's created, represented as an array of partial block objects.
    */
   initialContent: PartialBlock<BSchema>[];
@@ -288,6 +292,10 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
           ? options.editable
           : newOptions._tiptapOptions?.editable !== undefined
           ? newOptions._tiptapOptions?.editable
+          : true,
+      enableNestedBlocks:
+        options.enableNestedBlocks !== undefined
+          ? options.enableNestedBlocks
           : true,
       extensions:
         newOptions.enableBlockNoteExtensions === false
@@ -755,6 +763,13 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
+    if (
+      typeof this._tiptapEditor.options.enableNestedBlocks === "boolean" &&
+      !this._tiptapEditor.options.enableNestedBlocks
+    ) {
+      return false;
+    }
+
     const { startPos, depth } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       this._tiptapEditor.state.selection.from
@@ -774,6 +789,13 @@ export class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockSchema> {
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
+    if (
+      typeof this._tiptapEditor.options.enableNestedBlocks === "boolean" &&
+      !this._tiptapEditor.options.enableNestedBlocks
+    ) {
+      return false;
+    }
+
     const { depth } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       this._tiptapEditor.state.selection.from
